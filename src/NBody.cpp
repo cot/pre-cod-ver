@@ -29,14 +29,11 @@ int main( int argc, char **argv ) {
 	MPI_Init(&argc,&argv);
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
-	printGreetings();
-
 	if( TEST ) {
 		if( !testVectorMath() ) {
 			cerr << "Test VectorMath failed.";
 			return -2;
 		}
-
 		cout << "All test OK" << endl;
 	}
 
@@ -50,19 +47,15 @@ int main( int argc, char **argv ) {
 		if( anError != 0 ) {
 			fprintf( stderr, "GLEW Error: %s\n",
 					glewGetErrorString( anError ) );
-
 			if( D ) {
 				cerr << " done" << endl;
 			}
-
 			return 1;
 		}
-
 		setupRenderContext();
 		glutMainLoop();
 	}
 	MPI_Finalize();
-
 	return 0;
 }
 
@@ -71,7 +64,7 @@ void setupWindow( int argc, char **argv ) {
 	glutInit( &argc, argv );
 	glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH );
 	glutInitWindowSize( APP_WIDTH, APP_HEIGHT );
-	glutCreateWindow( APP_NAME );
+	glutCreateWindow( "n body" );
 	//glutIgnoreKeyRepeat(true);
 	glutFullScreen();
 }
@@ -115,7 +108,7 @@ void registerCallbacks() {
 		b 			= fmod(a,seek);
 		a 			= rand();
 		c 			= -fmod(a,seek);
-		sBodyRadius[i] 		= fmod(a,100) + 1; /* between 1 and 100 */
+		sBodyRadius[i] 		= fmod(a,10) + 1; /* between 1 and 100 */
 		for(j=0;j<4;j++) {
 			a                       = rand();
 			b                       = fmod(a,seek);
@@ -126,7 +119,7 @@ void registerCallbacks() {
 		a 			= rand();
 		c 			= -fmod(a,seek);
 		randval 		= (double) (b / seek) + (double) (c / seek);
-                bufX[i] 		= 200 * randval; /* between -100 and 100 */
+                bufX[i] 		= 1000 * randval; /* between -100 and 100 */
 		a 			= rand();
 		b 			= fmod(a,seek);
                 bufY[i] 		= 300 * randval / seek; /* between 0 and 300 */
@@ -135,8 +128,7 @@ void registerCallbacks() {
 		a 			= rand();
 		c 			= -fmod(a,seek);
 		randval 		= b + 2 * c ;
-		printf(" bufZ[] =  %g \n ",randval);
-                bufZ[i] 		= randval; /* between -1000 and 500 */
+                bufZ[i] 		= 10.0 * randval; /* between -1000 and 500 */
 		sBodyVelocity[i].x 	= 0.0;
 		sBodyVelocity[i].y 	= 0.0;
 		sBodyVelocity[i].z 	= 0.0;

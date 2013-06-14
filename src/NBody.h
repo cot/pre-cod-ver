@@ -84,17 +84,5 @@ static void updateAcceleration( int bodyIndex );
 static void updateVelocity( int bodyIndex, float deltaT );
 static void updatePosition( int bodyIndex, float deltaT );
 
-// Misc
-inline void printGreetings() {
-   std::cout << APP_NAME << " "
-             << APP_VERSION << std::endl;
-   std::cout << APP_COPYRIGHT
-             << ", licensed under "
-             << APP_LICENSE
-             << std::endl;
-   std::cout << "Contact me at "
-             << APP_CONTACT
-             << std::endl;
-}
 
 #endif
