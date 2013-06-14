@@ -41,7 +41,6 @@ int main( int argc, char **argv ) {
 	}
 
 	setupWindow( argc, argv );
-//	printf("petit passage 01 !\n");
 	registerCallbacks();
 	// Initialize GLEW
 	GLenum anError = glewInit();
