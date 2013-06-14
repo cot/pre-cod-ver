@@ -79,6 +79,7 @@ void registerCallbacks() {
         char _coordX[10];
         char _coordY[10];
         char _coordZ[10];
+	char _masse[10];
 	double *bufX, *bufY, *bufZ;
 
 	double a,b,c,seek,randvalue;
@@ -101,6 +102,7 @@ void registerCallbacks() {
         strcpy(_coordY,"_coordY");
         strcpy(_coordZ,"_coordZ");
         strcpy(_SpawnProg,"SpawnProg");
+	strcpy(_masse,"_masse");
 
         for(i=0;i<BODY_COUNT;i++) {
 		seek = 500.0;
@@ -133,10 +135,10 @@ void registerCallbacks() {
 		b 			= fmod(a,seek);
 		a 			= rand();
 		c 			= -fmod(a,seek);
-//		randval 		= b + 2 * c ;
-                randval                 = (double) (b / seek) + (double) (c / seek);
-		bufZ[i]			= 100 * randval; /* between -100 and 100 */
-//                bufZ[i] 		= 10.0 * randval; /* between -1000 and 500 */
+//		randval                 = (double) (b / seek) + (double) (c / seek);
+//		bufZ[i]			= 100 * randval; /* between -100 and 100 */
+		randval 		= b + 2 * c ;
+                bufZ[i] 		= 10.0 * randval; /* between -1000 and 500 */
 			sBodyPosition[i].z = bufZ[i];
 		sBodyVelocity[i].x 	= 0.0;
 		sBodyVelocity[i].y 	= 0.0;
@@ -145,8 +147,9 @@ void registerCallbacks() {
 		sBodyAcceleration[i].y 	= 0.0;
 		sBodyAcceleration[i].z 	= 0.0;
                 a                       = rand();
-		sBodyMass[i] 		= fmod(a,1e6);
+		sBodyMass[i] 		= fmod(a,1e1);
         }
+	sBodyMass[0]            = 1e11;
 
         /* Creation of data structures */
         MPI_File_open(MPI_COMM_SELF, _coordX, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh);
@@ -164,6 +167,12 @@ void registerCallbacks() {
         MPI_File_open(MPI_COMM_SELF, _coordZ, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh);
         MPI_File_set_view(fh, 0, MPI_DOUBLE, MPI_DOUBLE, "native", MPI_INFO_NULL);
         MPI_File_iwrite(fh, bufZ, BODY_COUNT, MPI_DOUBLE, &request);
+        MPI_Wait( &request, &status );
+        MPI_File_close(&fh);
+
+        MPI_File_open(MPI_COMM_SELF, _masse, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh);
+        MPI_File_set_view(fh, 0, MPI_DOUBLE, MPI_DOUBLE, "native", MPI_INFO_NULL);
+        MPI_File_iwrite(fh, sBodyMass, BODY_COUNT, MPI_DOUBLE, &request);
         MPI_Wait( &request, &status );
         MPI_File_close(&fh);
 
