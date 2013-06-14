@@ -15,6 +15,8 @@
 
 #include "mpi.h"
 
+#define ITER 100
+
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -128,8 +130,8 @@ void registerCallbacks() {
                 a                       = rand();
                 c                       = -fmod(a,seek);
                 randval                 = (double) (b / seek) + (double) (c / seek);
-                bufY[i]                 = 100 * randval; /* between -100 and 100 */
-//              bufY[i] 		= 300 * randval / seek; /* between 0 and 300 */
+		bufY[i]                 = 300 * randval; /* between -100 and 100 */
+//		bufY[i] 		= 300 * randval / seek; /* between 0 and 300 */
 			sBodyPosition[i].y = bufY[i];
 		a 			= rand();
 		b 			= fmod(a,seek);
@@ -138,7 +140,7 @@ void registerCallbacks() {
 //		randval                 = (double) (b / seek) + (double) (c / seek);
 //		bufZ[i]			= 100 * randval; /* between -100 and 100 */
 		randval 		= b + 2 * c ;
-                bufZ[i] 		= 10.0 * randval; /* between -1000 and 500 */
+		bufZ[i] 		= 10.0 * randval; /* between -1000 and 500 */
 			sBodyPosition[i].z = bufZ[i];
 		sBodyVelocity[i].x 	= 0.0;
 		sBodyVelocity[i].y 	= 0.0;
@@ -194,7 +196,10 @@ void setupRenderContext() {
 void setupBodies() {
 
 	for( int i = 0; i < BODY_COUNT; i++ ) {
+		/* CHANGEMENT DE DIMENSION DES PARTICULES A L'AFFICHAGE */
 		gltMakeSphere( sBodyBatch[i], sBodyRadius[i], 30, 50 );
+		//gltMakeSphere( sBodyBatch[i], 5, 30, 50 );
+		/* FIN DE CHANGEMENT DE DIMENSION DES PARTICULES A L'AFFICHAGE */
 		sBodyFrames[i].SetOrigin( sBodyPosition[i].x,
 				sBodyPosition[i].y,
 				sBodyPosition[i].z );
@@ -294,15 +299,20 @@ void onRenderScene( void ) {
 		MPI_File_close(&fh);
 		sBodyPosition[i].z = bufZ[i];
 	}
-	if(rank == 0) {
-		/* End local update */
-
-		// Call the drawing functions
-		drawBodies( &timeKeeper, &lightEyePos );
-		// Switch the buffers to bring the drawing on screen
-		glutSwapBuffers();
-		glutPostRedisplay();  /* Redisplay to reply all the render view */
-	}
+	/* BOUCLE ITERATIVE */
+//	if(iter < ITER) {
+		if(rank == 0) {
+			// Call the drawing functions
+			drawBodies( &timeKeeper, &lightEyePos );
+			// Switch the buffers to bring the drawing on screen
+			glutSwapBuffers();
+			glutPostRedisplay();  /* Redisplay to reply all the render view */
+			iter++;
+		}
+//	}
+//	else {
+//	
+//	}
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -312,13 +322,12 @@ void drawBodies( CStopWatch *timeKeeper, M3DVector4f *lightPosition ) {
 	// compute displacement and new vectors
 	static float previousTime = 0.0f;
 	float currentTime = timeKeeper->GetElapsedSeconds();
-	//	updatePhysics( currentTime - previousTime );
 	previousTime = currentTime;
-	
+
 	for( int i = 0; i < BODY_COUNT; i++ ) {
 		// Save
 		sModelViewMatrixStack.PushMatrix();
-		// update position with regard to new values
+		/* update position with regard to new values */
 		sBodyFrames[i].SetOrigin( sBodyPosition[i].x,
 				sBodyPosition[i].y,
 				sBodyPosition[i].z );
