@@ -119,16 +119,25 @@ void registerCallbacks() {
 		a 			= rand();
 		c 			= -fmod(a,seek);
 		randval 		= (double) (b / seek) + (double) (c / seek);
-                bufX[i] 		= 1000 * randval; /* between -100 and 100 */
+                bufX[i] 		= 100 * randval; /* between -100 and 100 */
+			sBodyPosition[i].x = bufX[i];
 		a 			= rand();
 		b 			= fmod(a,seek);
-                bufY[i] 		= 300 * randval / seek; /* between 0 and 300 */
+                a                       = rand();
+                c                       = -fmod(a,seek);
+                randval                 = (double) (b / seek) + (double) (c / seek);
+                bufY[i]                 = 100 * randval; /* between -100 and 100 */
+//              bufY[i] 		= 300 * randval / seek; /* between 0 and 300 */
+			sBodyPosition[i].y = bufY[i];
 		a 			= rand();
 		b 			= fmod(a,seek);
 		a 			= rand();
 		c 			= -fmod(a,seek);
-		randval 		= b + 2 * c ;
-                bufZ[i] 		= 10.0 * randval; /* between -1000 and 500 */
+//		randval 		= b + 2 * c ;
+                randval                 = (double) (b / seek) + (double) (c / seek);
+		bufZ[i]			= 100 * randval; /* between -100 and 100 */
+//                bufZ[i] 		= 10.0 * randval; /* between -1000 and 500 */
+			sBodyPosition[i].z = bufZ[i];
 		sBodyVelocity[i].x 	= 0.0;
 		sBodyVelocity[i].y 	= 0.0;
 		sBodyVelocity[i].z 	= 0.0;
@@ -158,13 +167,6 @@ void registerCallbacks() {
         MPI_Wait( &request, &status );
         MPI_File_close(&fh);
 
-//	printf("bufX[5] = %g\t bufY[5] = %g\t bufZ[5] = %g\n",bufX[5], bufY[5], bufZ[5]);
-        for(i=0;i<BODY_COUNT;i++) {
-		sBodyPosition[i].x = bufX[i];
-		sBodyPosition[i].y = bufY[i];
-		sBodyPosition[i].z = bufZ[i];
-        }
-//	printf("petit passage 02 !\n");
 	glutReshapeFunc( onChangeSize );
 	glutDisplayFunc( onRenderScene );
 }
