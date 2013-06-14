@@ -25,7 +25,7 @@ GLShaderManager.o    : $(SHAREDPATH)GLShaderManager.cpp
 math3d.o    : $(SHAREDPATH)math3d.cpp
 
 $(SpawnProg): SpawnProg.c
-	$(CC) $(CFLAGS) -o SpawnProg $(LIBDIRS) $(INCDIRS) SpawnProg.c $(LIBS)
+	$(CC) $(CFLAGS) -o SpawnProg $(LIBDIRS) $(INCDIRS) SpawnProg.c $(SHAREDPATH)glew.c $(SHAREDPATH)GLTools.cpp $(SHAREDPATH)GLBatch.cpp $(SHAREDPATH)GLTriangleBatch.cpp $(SHAREDPATH)GLShaderManager.cpp $(SHAREDPATH)math3d.cpp $(LIBS)
 
 $(MAIN) : $(MAIN).o glew.o SpawnProg
 	$(CC) $(CFLAGS) -o $(OUTPUT) $(LIBDIRS) $(SRCPATH)$(MAIN).cpp  $(SHAREDPATH)glew.c $(SHAREDPATH)GLTools.cpp $(SHAREDPATH)GLBatch.cpp $(SHAREDPATH)GLTriangleBatch.cpp $(SHAREDPATH)GLShaderManager.cpp $(SHAREDPATH)math3d.cpp $(LIBS)

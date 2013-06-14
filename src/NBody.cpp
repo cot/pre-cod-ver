@@ -127,7 +127,7 @@ void registerCallbacks() {
 		a 			= rand();
 		c 			= -fmod(a,seek);
 		randval 		= (double) (b / seek) + (double) (c / seek);
-                bufX[i] 		= 100 * randval; /* between -100 and 100 */
+                bufX[i] 		= 200 * randval; /* between -100 and 100 */
 		a 			= rand();
 		b 			= fmod(a,seek);
                 bufY[i] 		= 300 * randval / seek; /* between 0 and 300 */
@@ -136,6 +136,7 @@ void registerCallbacks() {
 		a 			= rand();
 		c 			= -fmod(a,seek);
 		randval 		= b + 2 * c ;
+		printf(" bufZ[] =  %g \n ",randval);
                 bufZ[i] 		= randval; /* between -1000 and 500 */
 		sBodyVelocity[i].x 	= 0.0;
 		sBodyVelocity[i].y 	= 0.0;
@@ -143,7 +144,8 @@ void registerCallbacks() {
 		sBodyAcceleration[i].x 	= 0.0;
 		sBodyAcceleration[i].y 	= 0.0;
 		sBodyAcceleration[i].z 	= 0.0;
-		sBodyMass[i] 		= rand() ;
+                a                       = rand();
+		sBodyMass[i] 		= fmod(a,1e6);
         }
 
         /* Creation of data structures */
@@ -264,12 +266,7 @@ void onRenderScene( void ) {
 	if (parentcomm == MPI_COMM_NULL) {
 		/* Create nprocs more processes to write data evaluation update */
 		MPI_Comm_spawn(_SpawnProg, MPI_ARGV_NULL, nprocs - 1, MPI_INFO_NULL, 0, MPI_COMM_SELF, &intercomm, MPI_ERRCODES_IGNORE); 
-		//printf("I'm the parent.\n");
 	}
-	//else {
-		//printf("I'm the spawned.\n");
-	//}
-	/* End update */
 
 	/* Data Evaluation update on root */
 	for(i=0;i<BODY_COUNT;i++) {
@@ -296,9 +293,6 @@ void onRenderScene( void ) {
 		sBodyPosition[i].z = bufZ[i];
 	}
 	if(rank == 0) {
-//		printf(" X = %g \t Y = %g \t Z = %g\n",sBodyPosition[5].x,sBodyPosition[5].y,sBodyPosition[5].z);
-//		printf(" bufX = %g \t bufY = %g \t bufZ = %g\n",bufX[5],bufY[5],bufZ[5]);
-//		printf("sBodyPosition[5].x = %g\t sBodyPosition[5].y = %g\t sBodyPosition[5].z = %g\n",sBodyPosition[5].x, sBodyPosition[5].y, sBodyPosition[5].z);
 		/* End local update */
 
 		// Call the drawing functions
@@ -337,59 +331,5 @@ void drawBodies( CStopWatch *timeKeeper, M3DVector4f *lightPosition ) {
 		// Restore
 		sModelViewMatrixStack.PopMatrix();
 	}
-}
-
-///////////////////////////////////////////////////////////////////////
-// Physics
-
-void updatePhysics( float deltaT ) {
-
-	for( int i = 0; i < BODY_COUNT; i++ ) {
-		updateAcceleration( i );
-		updateVelocity( i, deltaT );
-		updatePosition( i, deltaT );
-	}
-}
-
-void updateAcceleration( int bodyIndex ) {
-	Force3D netForce = { 0, 0, 0 };
-
-	for( int i = 0; i < BODY_COUNT; i++ ) {
-		if( i == bodyIndex ) {
-			continue;
-		}
-
-		Force3D vectorForceToOther = {0, 0, 0};
-		Force scalarForceBetween = forceNewtonianGravity3D(
-				sBodyMass[bodyIndex],
-				sBodyMass[i],
-				sBodyPosition[bodyIndex],
-				sBodyPosition[i] );
-		direction( sBodyPosition[bodyIndex],
-				sBodyPosition[i],
-				vectorForceToOther );
-		vectorForceToOther.x *= scalarForceBetween;
-		vectorForceToOther.y *= scalarForceBetween;
-		vectorForceToOther.z *= scalarForceBetween;
-		netForce.x += vectorForceToOther.x;
-		netForce.y += vectorForceToOther.y;
-		netForce.z += vectorForceToOther.z;
-	}
-
-	sBodyAcceleration[bodyIndex] = computeAccel3D( sBodyMass[bodyIndex],
-			netForce );
-}
-
-void updateVelocity( int bodyIndex, float deltaT ) {
-	sBodyVelocity[bodyIndex] = computeVelo3D(
-			sBodyAcceleration[bodyIndex],
-			sBodyVelocity[bodyIndex],
-			deltaT );
-}
-
-void updatePosition( int bodyIndex, float deltaT ) {
-	sBodyPosition[bodyIndex] = computePos3D( sBodyVelocity[bodyIndex],
-			sBodyPosition[bodyIndex],
-			deltaT );
 }
 

@@ -6,7 +6,7 @@
 
 #include "src/Constants.h"
 
-#define deltat 10
+#define deltat 1
 #define NITER 1
 
 int main(int argc, char *argv[]){
@@ -73,10 +73,9 @@ int main(int argc, char *argv[]){
 			_fY = res0 * res0 * res0 * uY;
 			_fZ = res0 * res0 * res0 * uZ;
 		}
-//		printf("_fX = % g\t _fY = % g\t _fZ = % g\t",_fX, _fY, _fZ);
-		bufX[i] = bufX[i] + deltat * deltat * _fX * 1e6;
-		bufY[i] = bufY[i] + deltat * deltat * _fY * 1e6;
-		bufZ[i] = bufZ[i] + deltat * deltat * _fZ * 1e6;
+		bufX[i] = bufX[i] - deltat * deltat * _fX * 1e5;
+		bufY[i] = bufY[i] - deltat * deltat * _fY * 1e5;
+		bufZ[i] = bufZ[i] - deltat * deltat * _fZ * 1e5;
 	}
 
 	/* Writing the data structure */
