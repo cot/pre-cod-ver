@@ -14,6 +14,6 @@ const static int APP_HEIGHT = 600;
 // GL constant
 const static float APP_CAMERA_FOV = 40.0f;
 const static float APP_CAMERA_NEAR = 1.0f;
-const static float APP_CAMERA_FAR = 5000.f;
+const static float APP_CAMERA_FAR = 10000.f;
 
 #endif

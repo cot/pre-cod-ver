@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
 	double *bufX, *bufY, *bufZ;
 	float  *masse;
 	double uX, uY, uZ;
-	double vit, _sqrt, res0;
+	double _sqrt, res0;
 	double _fX, _fY, _fZ;
 
         MPI_File fh;
@@ -69,31 +69,35 @@ int main(int argc, char *argv[]){
 
 	res0 = 0.0;
 	for(i=0;i<BODY_COUNT;i++) {
+		_fX = 0.0;
+		_fY = 0.0;
+		_fZ = 0.0;
 		for(j=0;j<BODY_COUNT;j++) {
-			uX = bufX[i] - bufX[j] ;
-			uY = bufY[i] - bufY[j] ;
-			uZ = bufZ[i] - bufZ[j] ;
+			if(j!=i) {
+				uX = bufX[i] - bufX[j] ;
+				uY = bufY[i] - bufY[j] ;
+				uZ = bufZ[i] - bufZ[j] ;
 
-			res0 = uX * uX ;
-			res0+= uY * uY ;
-			res0+= uZ * uZ ;
-			_sqrt = sqrt(res0);
-			res0 = (double) 1.0 / (_sqrt+1e-9) ;
-			vit = vit + res0;
+				res0 = uX * uX ;
+				res0+= uY * uY ;
+				res0+= uZ * uZ ;
+				_sqrt = sqrt(res0);
+				res0 = (double) 1.0 / _sqrt ;
 
-			_fX = res0 * res0 * res0 * uX;
-			_fY = res0 * res0 * res0 * uY;
-			_fZ = res0 * res0 * res0 * uZ;
+				_fX+= res0 * res0 * res0 * uX * masse[j] ;
+				_fY+= res0 * res0 * res0 * uY * masse[j] ;
+				_fZ+= res0 * res0 * res0 * uZ * masse[j] ;
+			}
 		}
+		printf("_fX = %g bufX[5] = %g  bufX[6] = %g\n",_fX,bufX[5],bufX[6]);
 /*
 		bufX[i] = bufX[i] - deltat * deltat * _fX * 1e7;
 		bufY[i] = bufY[i] - deltat * deltat * _fY * 1e7;
 		bufZ[i] = bufZ[i] - deltat * deltat * _fZ * 1e7;
 */
-		printf("masse[%i] = %f \n",i,masse[i]);
-		bufX[i] = bufX[i] - deltat * deltat * masse[j] * _fX * 1e15;
-		bufY[i] = bufY[i] - deltat * deltat * masse[j] * _fY * 1e15;
-		bufZ[i] = bufZ[i] - deltat * deltat * masse[j] * _fZ * 1e15;
+		bufX[i] = bufX[i] - deltat * deltat * _fX * 1e8 ;
+		bufY[i] = bufY[i] - deltat * deltat * _fY * 1e8 ;
+		bufZ[i] = bufZ[i] - deltat * deltat * _fZ * 1e8 ;
 	}
 
 	/* Writing the data structure */

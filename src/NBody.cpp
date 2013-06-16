@@ -149,10 +149,9 @@ void registerCallbacks() {
 		sBodyAcceleration[i].y 	= 0.0;
 		sBodyAcceleration[i].z 	= 0.0;
 		a			= rand();
-		sBodyMass[i] 		= (float) (fmodf(a,1e4) + 1e4);
-	//	printf("sBodyMass[i] a l'initialisation =%g\n",sBodyMass[i]); // OK
+		sBodyMass[i] 		= (float) (fmodf(a,1e1) + 1e1);
         }
-	sBodyMass[0]            = 1e11;
+	sBodyMass[0]            = 1e6;
 
         /* Creation of data structures */
         MPI_File_open(MPI_COMM_SELF, _coordX, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh);
@@ -178,9 +177,6 @@ void registerCallbacks() {
         MPI_File_iwrite(fh, sBodyMass, BODY_COUNT, MPI_FLOAT, &request);
         MPI_Wait( &request, &status );
         MPI_File_close(&fh);
-/*	for(i=0;i<BODY_COUNT;i++) {
-		printf("sBodyMass[i] apres l'initialisation =%g\n",sBodyMass[i]);
-	} */ //OK
 
 	glutReshapeFunc( onChangeSize );
 	glutDisplayFunc( onRenderScene );
