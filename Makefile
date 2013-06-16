@@ -31,4 +31,4 @@ $(MAIN) : $(MAIN).o glew.o SpawnProg
 	$(CC) $(CFLAGS) -o $(OUTPUT) $(LIBDIRS) $(SRCPATH)$(MAIN).cpp  $(SHAREDPATH)glew.c $(SHAREDPATH)GLTools.cpp $(SHAREDPATH)GLBatch.cpp $(SHAREDPATH)GLTriangleBatch.cpp $(SHAREDPATH)GLShaderManager.cpp $(SHAREDPATH)math3d.cpp $(LIBS)
 
 clean:
-	rm -f *.o _coord*
+	rm -f *.o _coord* _masse n-body-sim SpawnProg

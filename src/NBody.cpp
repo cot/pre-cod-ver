@@ -148,8 +148,9 @@ void registerCallbacks() {
 		sBodyAcceleration[i].x 	= 0.0;
 		sBodyAcceleration[i].y 	= 0.0;
 		sBodyAcceleration[i].z 	= 0.0;
-                a                       = rand();
-		sBodyMass[i] 		= fmod(a,1e1);
+		a			= rand();
+		sBodyMass[i] 		= (float) (fmodf(a,1e4) + 1e4);
+	//	printf("sBodyMass[i] a l'initialisation =%g\n",sBodyMass[i]); // OK
         }
 	sBodyMass[0]            = 1e11;
 
@@ -173,10 +174,13 @@ void registerCallbacks() {
         MPI_File_close(&fh);
 
         MPI_File_open(MPI_COMM_SELF, _masse, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh);
-        MPI_File_set_view(fh, 0, MPI_DOUBLE, MPI_DOUBLE, "native", MPI_INFO_NULL);
-        MPI_File_iwrite(fh, sBodyMass, BODY_COUNT, MPI_DOUBLE, &request);
+        MPI_File_set_view(fh, 0, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
+        MPI_File_iwrite(fh, sBodyMass, BODY_COUNT, MPI_FLOAT, &request);
         MPI_Wait( &request, &status );
         MPI_File_close(&fh);
+/*	for(i=0;i<BODY_COUNT;i++) {
+		printf("sBodyMass[i] apres l'initialisation =%g\n",sBodyMass[i]);
+	} */ //OK
 
 	glutReshapeFunc( onChangeSize );
 	glutDisplayFunc( onRenderScene );
@@ -246,9 +250,11 @@ void onRenderScene( void ) {
         char _coordX[10];
         char _coordY[10];
         char _coordZ[10];
+	char _masse[10];
         double *bufX;
         double *bufY;
         double *bufZ;
+	double *masse;
 
         MPI_File fh;
         MPI_Status status;
@@ -261,12 +267,14 @@ void onRenderScene( void ) {
 
 //	printf("petit passage 03 !\n");
 
-        bufX = (double *)calloc(BODY_COUNT,sizeof(double));
-        bufY = (double *)calloc(BODY_COUNT,sizeof(double));
-        bufZ = (double *)calloc(BODY_COUNT,sizeof(double));
+        bufX  = (double *)calloc(BODY_COUNT,sizeof(double));
+        bufY  = (double *)calloc(BODY_COUNT,sizeof(double));
+        bufZ  = (double *)calloc(BODY_COUNT,sizeof(double));
+        masse = (double *)calloc(BODY_COUNT,sizeof(double));
         strcpy(_coordX,"_coordX");
         strcpy(_coordY,"_coordY");
         strcpy(_coordZ,"_coordZ");
+        strcpy(_masse,"_masse");
 	strcpy(_SpawnProg,"SpawnProg");
 
 	/* Spawn process */
@@ -280,24 +288,28 @@ void onRenderScene( void ) {
 		/* Update X */
 		MPI_File_open(MPI_COMM_SELF, _coordX, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL,&fh);
 		MPI_File_set_view(fh, 0, MPI_DOUBLE, MPI_DOUBLE, "native", MPI_INFO_NULL);
-		MPI_File_iread(fh, bufX, BODY_COUNT, MPI_DOUBLE, &request);
+		MPI_File_iread(fh, &sBodyPosition[0].x, BODY_COUNT, MPI_DOUBLE, &request);
 		MPI_Wait( &request, &status );
 		MPI_File_close(&fh);
-		sBodyPosition[i].x = bufX[i];
 		/* Update Y */
 		MPI_File_open(MPI_COMM_SELF, _coordY, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL,&fh);
 		MPI_File_set_view(fh, 0, MPI_DOUBLE, MPI_DOUBLE, "native", MPI_INFO_NULL);
-		MPI_File_iread(fh, bufY, BODY_COUNT, MPI_DOUBLE, &request);
+		MPI_File_iread(fh, &sBodyPosition[0].y, BODY_COUNT, MPI_DOUBLE, &request);
 		MPI_Wait( &request, &status );
 		MPI_File_close(&fh);
-		sBodyPosition[i].y = bufY[i];
 		/* Update Z */
 		MPI_File_open(MPI_COMM_SELF, _coordZ, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL,&fh);
 		MPI_File_set_view(fh, 0, MPI_DOUBLE, MPI_DOUBLE, "native", MPI_INFO_NULL);
-		MPI_File_iread(fh, bufZ, BODY_COUNT, MPI_DOUBLE, &request);
+		MPI_File_iread(fh, &sBodyPosition[0].z, BODY_COUNT, MPI_DOUBLE, &request);
 		MPI_Wait( &request, &status );
 		MPI_File_close(&fh);
-		sBodyPosition[i].z = bufZ[i];
+		/* Update Masse */
+		MPI_File_open(MPI_COMM_SELF, _masse, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh);
+		MPI_File_set_view(fh, 0, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
+		MPI_File_iwrite(fh, sBodyMass, BODY_COUNT, MPI_FLOAT, &request);
+		MPI_Wait( &request, &status );
+		MPI_File_close(&fh);
+		//printf("in boucle iterative : masse[%i] = %f \n",i,masse[i]);
 	}
 	/* BOUCLE ITERATIVE */
 //	if(iter < ITER) {

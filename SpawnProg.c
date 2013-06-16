@@ -14,7 +14,8 @@ int main(int argc, char *argv[]){
 	int i,j, iter;
 	char *_coordX, *_coordY, *_coordZ;
 	char *_masse;
-	double *bufX, *bufY, *bufZ, *masse;
+	double *bufX, *bufY, *bufZ;
+	float  *masse;
 	double uX, uY, uZ;
 	double vit, _sqrt, res0;
 	double _fX, _fY, _fZ;
@@ -37,7 +38,7 @@ int main(int argc, char *argv[]){
         _coordZ = (char *)malloc(10);
 	strcpy(_coordZ,"_coordZ");
 
-	masse=(double *)calloc(BODY_COUNT,sizeof(double));
+	masse=(float *)calloc(BODY_COUNT,sizeof(float));
         _masse = (char *)malloc(10);
 	strcpy(_masse,"_masse");
 
@@ -61,8 +62,8 @@ int main(int argc, char *argv[]){
 	MPI_File_close(&fh);
 
 	MPI_File_open(MPI_COMM_SELF, _masse, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh);
-	MPI_File_set_view(fh, 0, MPI_DOUBLE, MPI_DOUBLE, "native", MPI_INFO_NULL);
-	MPI_File_iread(fh, masse, BODY_COUNT, MPI_DOUBLE, &request);
+	MPI_File_set_view(fh, 0, MPI_FLOAT, MPI_FLOAT, "native", MPI_INFO_NULL);
+	MPI_File_iread(fh, masse, BODY_COUNT, MPI_FLOAT, &request);
 	MPI_Wait( &request, &status );
 	MPI_File_close(&fh);
 
@@ -84,14 +85,15 @@ int main(int argc, char *argv[]){
 			_fY = res0 * res0 * res0 * uY;
 			_fZ = res0 * res0 * res0 * uZ;
 		}
+/*
 		bufX[i] = bufX[i] - deltat * deltat * _fX * 1e7;
 		bufY[i] = bufY[i] - deltat * deltat * _fY * 1e7;
 		bufZ[i] = bufZ[i] - deltat * deltat * _fZ * 1e7;
-/*
-		bufX[i] = bufX[i] - deltat * deltat * masse[i] * masse[j] * _fX * 1e15;
-		bufY[i] = bufY[i] - deltat * deltat * masse[i] * masse[j] * _fY * 1e15;
-		bufZ[i] = bufZ[i] - deltat * deltat * masse[i] * masse[j] * _fZ * 1e15;
 */
+		printf("masse[%i] = %f \n",i,masse[i]);
+		bufX[i] = bufX[i] - deltat * deltat * masse[j] * _fX * 1e15;
+		bufY[i] = bufY[i] - deltat * deltat * masse[j] * _fY * 1e15;
+		bufZ[i] = bufZ[i] - deltat * deltat * masse[j] * _fZ * 1e15;
 	}
 
 	/* Writing the data structure */
