@@ -6,7 +6,7 @@
 
 #include "src/Constants.h"
 
-#define deltat 1
+#define deltat 100000
 #define NITER 1
 
 int main(int argc, char *argv[]){
@@ -15,9 +15,10 @@ int main(int argc, char *argv[]){
 	char *_coordX, *_coordY, *_coordZ;
 	char *_masse;
 	double *bufX, *bufY, *bufZ;
+	double *vitX, *vitY, *vitZ;
 	float  *masse;
 	double uX, uY, uZ;
-	double _sqrt, res0;
+	double _sqrt, res0, res6, res12;
 	double _fX, _fY, _fZ;
 
         MPI_File fh;
@@ -27,14 +28,17 @@ int main(int argc, char *argv[]){
 	MPI_Init(&argc,&argv);
 
 	bufX=(double *)calloc(BODY_COUNT,sizeof(double));
+	vitX=(double *)calloc(BODY_COUNT,sizeof(double));
         _coordX = (char *)malloc(10);
 	strcpy(_coordX,"_coordX");
 
 	bufY=(double *)calloc(BODY_COUNT,sizeof(double));
+	vitY=(double *)calloc(BODY_COUNT,sizeof(double));
         _coordY = (char *)malloc(10);
 	strcpy(_coordY,"_coordY");
 
 	bufZ=(double *)calloc(BODY_COUNT,sizeof(double));
+	vitZ=(double *)calloc(BODY_COUNT,sizeof(double));
         _coordZ = (char *)malloc(10);
 	strcpy(_coordZ,"_coordZ");
 
@@ -84,20 +88,30 @@ int main(int argc, char *argv[]){
 				_sqrt = sqrt(res0);
 				res0 = (double) 1.0 / _sqrt ;
 
+/* Gravitational Potential */
+/*
 				_fX+= res0 * res0 * res0 * uX * masse[j] ;
 				_fY+= res0 * res0 * res0 * uY * masse[j] ;
 				_fZ+= res0 * res0 * res0 * uZ * masse[j] ;
+*/
+/* Lennard Jones Potential */
+				res6  = (double) (res0 * res0 * res0 * res0 * res0 * res0);
+				res12 = (double) ( res6 * ( res6 - 1));
+				_fX+= res12 * uX * masse[j] ;
+				_fY+= res12 * uY * masse[j] ;
+				_fZ+= res12 * uZ * masse[j] ;
+//				printf("uX = %g uY = %g uZ = %g _fX = %g for mult = %g \n",uX,uY,uZ,_fX,res12 * uX * masse[j]);
 			}
 		}
-		printf("_fX = %g bufX[5] = %g  bufX[6] = %g\n",_fX,bufX[5],bufX[6]);
-/*
-		bufX[i] = bufX[i] - deltat * deltat * _fX * 1e7;
-		bufY[i] = bufY[i] - deltat * deltat * _fY * 1e7;
-		bufZ[i] = bufZ[i] - deltat * deltat * _fZ * 1e7;
-*/
-		bufX[i] = bufX[i] - deltat * deltat * _fX * 1e8 ;
-		bufY[i] = bufY[i] - deltat * deltat * _fY * 1e8 ;
-		bufZ[i] = bufZ[i] - deltat * deltat * _fZ * 1e8 ;
+
+		vitX[i] = - deltat * _fX ;
+		vitY[i] = - deltat * _fY ;
+		vitZ[i] = - deltat * _fZ ;
+
+		bufX[i] = bufX[i] + deltat * vitX[i];
+		bufY[i] = bufY[i] + deltat * vitY[i];
+		bufZ[i] = bufZ[i] + deltat * vitZ[i];
+//		printf("_fX = %g bufX[5] = %g  bufX[6] = %g\n",_fX,bufX[5],bufX[6]);
 	}
 
 	/* Writing the data structure */

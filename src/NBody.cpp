@@ -30,6 +30,7 @@ int main( int argc, char **argv ) {
 
 	MPI_Init(&argc,&argv);
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	iter = 0;
 
 	if( TEST ) {
 		if( !testVectorMath() ) {
@@ -130,8 +131,8 @@ void registerCallbacks() {
                 a                       = rand();
                 c                       = -fmod(a,seek);
                 randval                 = (double) (b / seek) + (double) (c / seek);
-		bufY[i]                 = 300 * randval; /* between -100 and 100 */
-//		bufY[i] 		= 300 * randval / seek; /* between 0 and 300 */
+//		bufY[i]                 = 300 * randval; /* between -100 and 100 */
+		bufY[i] 		= 3000 * randval / seek; /* between 0 and 300 */
 			sBodyPosition[i].y = bufY[i];
 		a 			= rand();
 		b 			= fmod(a,seek);
@@ -142,16 +143,16 @@ void registerCallbacks() {
 		randval 		= b + 2 * c ;
 		bufZ[i] 		= 10.0 * randval; /* between -1000 and 500 */
 			sBodyPosition[i].z = bufZ[i];
-		sBodyVelocity[i].x 	= 0.0;
-		sBodyVelocity[i].y 	= 0.0;
+		sBodyVelocity[i].x 	= 1.0;
+		sBodyVelocity[i].y 	= 1.0;
 		sBodyVelocity[i].z 	= 0.0;
 		sBodyAcceleration[i].x 	= 0.0;
 		sBodyAcceleration[i].y 	= 0.0;
 		sBodyAcceleration[i].z 	= 0.0;
 		a			= rand();
-		sBodyMass[i] 		= (float) (fmodf(a,1e1) + 1e1);
+		sBodyMass[i] 		= (float) (10 * fmodf(a,3) + 10);
         }
-	sBodyMass[0]            = 1e6;
+	sBodyMass[0]            = 1e1;
 
         /* Creation of data structures */
         MPI_File_open(MPI_COMM_SELF, _coordX, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh);
@@ -197,7 +198,7 @@ void setupBodies() {
 
 	for( int i = 0; i < BODY_COUNT; i++ ) {
 		/* CHANGEMENT DE DIMENSION DES PARTICULES A L'AFFICHAGE */
-		gltMakeSphere( sBodyBatch[i], sBodyRadius[i], 30, 50 );
+		gltMakeSphere( sBodyBatch[i], sBodyRadius[i], 30, 2 );
 		//gltMakeSphere( sBodyBatch[i], 5, 30, 50 );
 		/* FIN DE CHANGEMENT DE DIMENSION DES PARTICULES A L'AFFICHAGE */
 		sBodyFrames[i].SetOrigin( sBodyPosition[i].x,
@@ -277,6 +278,8 @@ void onRenderScene( void ) {
 	if (parentcomm == MPI_COMM_NULL) {
 		/* Create nprocs more processes to write data evaluation update */
 		MPI_Comm_spawn(_SpawnProg, MPI_ARGV_NULL, nprocs - 1, MPI_INFO_NULL, 0, MPI_COMM_SELF, &intercomm, MPI_ERRCODES_IGNORE); 
+		iter++;
+		printf("get off %i \n",iter);
 	}
 
 	/* Data Evaluation update on root */
