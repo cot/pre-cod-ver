@@ -124,7 +124,7 @@ void registerCallbacks() {
 		a 			= rand();
 		c 			= -fmod(a,seek);
 		randval 		= (double) (b / seek) + (double) (c / seek);
-                bufX[i] 		= 100 * randval; /* between -100 and 100 */
+		bufX[i] 		= 100 * randval; /* between -100 and 100 */
 			sBodyPosition[i].x = bufX[i];
 		a 			= rand();
 		b 			= fmod(a,seek);

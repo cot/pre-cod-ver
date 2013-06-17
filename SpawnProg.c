@@ -6,7 +6,7 @@
 
 #include "src/Constants.h"
 
-#define deltat 100000
+#define deltat 1
 #define NITER 1
 
 int main(int argc, char *argv[]){
@@ -89,17 +89,20 @@ int main(int argc, char *argv[]){
 				res0 = (double) 1.0 / _sqrt ;
 
 /* Gravitational Potential */
-/*
 				_fX+= res0 * res0 * res0 * uX * masse[j] ;
 				_fY+= res0 * res0 * res0 * uY * masse[j] ;
 				_fZ+= res0 * res0 * res0 * uZ * masse[j] ;
-*/
+				_fX+= res0 * res0 * res0 * uX * masse[j] ;
+				_fY+= res0 * res0 * res0 * uY * masse[j] ;
+				_fZ+= res0 * res0 * res0 * uZ * masse[j] ;
 /* Lennard Jones Potential */
+/*
 				res6  = (double) (res0 * res0 * res0 * res0 * res0 * res0);
 				res12 = (double) ( res6 * ( res6 - 1));
 				_fX+= res12 * uX * masse[j] ;
 				_fY+= res12 * uY * masse[j] ;
 				_fZ+= res12 * uZ * masse[j] ;
+*/
 //				printf("uX = %g uY = %g uZ = %g _fX = %g for mult = %g \n",uX,uY,uZ,_fX,res12 * uX * masse[j]);
 			}
 		}
@@ -111,7 +114,7 @@ int main(int argc, char *argv[]){
 		bufX[i] = bufX[i] + deltat * vitX[i];
 		bufY[i] = bufY[i] + deltat * vitY[i];
 		bufZ[i] = bufZ[i] + deltat * vitZ[i];
-//		printf("_fX = %g bufX[5] = %g  bufX[6] = %g\n",_fX,bufX[5],bufX[6]);
+		printf("_fX = %g bufX[5] = %g  bufX[6] = %g\n",_fX,bufX[5],bufX[6]);
 	}
 
 	/* Writing the data structure */
