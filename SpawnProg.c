@@ -114,7 +114,7 @@ int main(int argc, char *argv[]){
 		bufX[i] = bufX[i] + deltat * vitX[i];
 		bufY[i] = bufY[i] + deltat * vitY[i];
 		bufZ[i] = bufZ[i] + deltat * vitZ[i];
-		printf("_fX = %g bufX[5] = %g  bufX[6] = %g\n",_fX,bufX[5],bufX[6]);
+//		printf("_fX = %g bufX[5] = %g  bufX[6] = %g\n",_fX,bufX[5],bufX[6]);
 	}
 
 	/* Writing the data structure */

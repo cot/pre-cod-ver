@@ -152,7 +152,7 @@ void registerCallbacks() {
 		a			= rand();
 		sBodyMass[i] 		= (float) (10 * fmodf(a,3) + 10);
         }
-	sBodyMass[0]            = 1e1;
+	sBodyMass[0]            = 1e9;
 
         /* Creation of data structures */
         MPI_File_open(MPI_COMM_SELF, _coordX, MPI_MODE_CREATE | MPI_MODE_RDWR, MPI_INFO_NULL, &fh);
